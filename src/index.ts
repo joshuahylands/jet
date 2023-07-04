@@ -3,6 +3,7 @@ import express from 'express';
 
 import createAircraftRouter from './api/aircraft';
 import { loadBaseStationSQB } from './data/baseStation';
+import docsRouter from './docs/docsRouter';
 
 async function main() {
   // Check for the --nofetch argument. If not present download data
@@ -13,6 +14,7 @@ async function main() {
   // Set up the express app and routes
   const app = express();
 
+  app.use(docsRouter);
   app.use('/api/v1/aircraft', createAircraftRouter());
 
   // Start listening
