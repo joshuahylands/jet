@@ -3,10 +3,10 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import { Database, sqlite3, verbose } from 'sqlite3';
 
-import { DATA_DIRECTORY, downloadFile } from './mod';
+import { downloadFile } from '../util';
 
 const BASESTATION_SQB_URL = 'https://data.flightairmap.com/data/basestation/BaseStation.sqb.gz';
-const BASESTATION_SQB_FILE = path.join(DATA_DIRECTORY, 'BaseStation.sqb');
+const BASESTATION_SQB_FILE = path.join(process.cwd(), 'data', 'BaseStation.sqb');
 
 const sqlite3 = verbose();
 

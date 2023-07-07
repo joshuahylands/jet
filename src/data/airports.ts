@@ -2,10 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Database, verbose } from 'sqlite3';
 
-import { DATA_DIRECTORY, downloadFile } from './mod';
+import { downloadFile } from '../util';
 
 const AIRPORTS_CSV_URL = 'https://davidmegginson.github.io/ourairports-data/airports.csv';
-const AIRPORTS_SQL_FILE = path.join(DATA_DIRECTORY, 'airports.db');
+const AIRPORTS_SQL_FILE = path.join(process.cwd(), 'data', 'airports.db');
 
 const sqlite3 = verbose();
 
@@ -22,8 +22,7 @@ export async function initAirportsDB() {
     db.run('DROP TABLE IF EXISTS airports;');
     db.run(`
       CREATE TABLE airports (
-        id INTEGER,
-        ident TEXT,
+        icao TEXT,
         type TEXT,
         name TEXT,
         lat INTEGER,
@@ -50,6 +49,7 @@ export async function initAirportsDB() {
       const data = airports_csv_lines[i]
         .split(',')
         .map(value => value == '' ? 'NULL' : value)
+        .slice(1) // Get rid of the id field
         .join(',');
 
       db.run(`INSERT INTO airports VALUES (${data});`);

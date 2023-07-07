@@ -5,6 +5,7 @@ import createAircraftRouter from './api/aircraft';
 import createAirportsRouter from './api/airports';
 import initData from './data/mod';
 import docsRouter from './docs/docsRouter';
+import createAirportRouter from './api/airport';
 
 async function main() {
   await initData();
@@ -14,6 +15,7 @@ async function main() {
 
   app.use(docsRouter);
   app.use('/api/v1/aircraft', createAircraftRouter());
+  app.use('/api/v1/airport', createAirportRouter());
   app.use('/api/v1/airports', createAirportsRouter());
 
   // Start listening

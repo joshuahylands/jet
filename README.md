@@ -26,6 +26,38 @@ GET `/api/v1/aircraft?icao24=4063E7`
 }
 ```
 
+### GET `/airport?icao=<ICAO>`
+
+Returns the data about the airport with the ICAO Code provided
+
+#### Example
+GET `/api/v1/airport?icao=EGKK`
+
+```json
+{
+  "success": true,
+  "data": {
+    "icao": "EGKK",
+    "type": "large_airport",
+    "name": "London Gatwick Airport",
+    "lat": 51.148102,
+    "lon": -0.190278,
+    "elevation": 202,
+    "continent": "EU",
+    "iso_country": "GB",
+    "iso_region": "GB-ENG",
+    "municipality": "London",
+    "scheduled_service": "yes",
+    "gps_code": "EGKK",
+    "iata_code": "LGW",
+    "local_code": null,
+    "home_link": "http://www.gatwickairport.com/",
+    "wikipedia_link": "https://en.wikipedia.org/wiki/Gatwick_Airport",
+    "keywords": "LON, Crawley, Charlwood"
+  }
+}
+```
+
 ### GET `/airports?lat_min=<LAT_MIN>&lat_max=<LAT_MAX>&lon_min=<LON_MIN>&lon_max=<LON_MAX>`
 
 Returns all airports within the specified latitude and longitude bounds
@@ -38,8 +70,7 @@ GET `/api/v1/airports?lat_min=51.1&lat_max=51.25&lon_min=-0.2&lon_max=-0.1`
   "success": true,
   "data": [
     {
-      "id": 2429,
-      "ident": "EGKK",
+      "icao": "EGKK",
       "type": "large_airport",
       "name": "London Gatwick Airport",
       "lat": 51.148102,
@@ -58,8 +89,7 @@ GET `/api/v1/airports?lat_min=51.1&lat_max=51.25&lon_min=-0.2&lon_max=-0.1`
       "keywords": "LON, Crawley, Charlwood"
     },
     {
-      "id": 29155,
-      "ident": "EGKR",
+      "icao": "EGKR",
       "type": "small_airport",
       "name": "Redhill Aerodrome",
       "lat": 51.2136,
