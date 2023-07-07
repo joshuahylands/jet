@@ -1,48 +1,25 @@
 import fs from 'node:fs';
-import https from 'node:https';
 import path from 'node:path';
-import { verbose } from 'sqlite3';
+import { Database, verbose } from 'sqlite3';
 
-const DATA_DIRECTORY = path.join(process.cwd(), 'data');
-const AIRPORTS_CSV_FILE = path.join(DATA_DIRECTORY, 'airports.csv');
-const AIRPORTS_SQL_FILE = path.join(DATA_DIRECTORY, 'airports.db');
+import { DATA_DIRECTORY, downloadFile } from './mod';
+
 const AIRPORTS_CSV_URL = 'https://davidmegginson.github.io/ourairports-data/airports.csv';
+const AIRPORTS_SQL_FILE = path.join(DATA_DIRECTORY, 'airports.db');
 
 const sqlite3 = verbose();
 
-// Downloads airports.csv. Wrapped in a promise to make it easier to use with async-await
-function downloadAirportsCSV(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(AIRPORTS_CSV_FILE, { flags: 'w+' });
+export async function initAirportsDB() {
+  const buffer = await downloadFile(AIRPORTS_CSV_URL);
 
-    https.get(AIRPORTS_CSV_URL, res => {
-      res.pipe(file);
-
-      file.on('finish', () => {
-        file.close();
-        resolve();
-      });
-
-      file.on('error', () => {
-        file.close();
-        reject();
-      });
-
-      res.on('error', () => reject());
-    });
-  });
-}
-
-// This function converts the data in the CSV file into an SQLite Database
-function convertAicraftCSVToSQL() {
-  const airports_csv_data = fs.readFileSync(AIRPORTS_CSV_FILE).toString();
+  const airports_csv_data = buffer.toString();
   const airports_csv_lines = airports_csv_data.split('\n');
 
   const db = new sqlite3.Database(AIRPORTS_SQL_FILE);
 
-  
-  // Create the table
   db.serialize(() => {
+    // Create the table
+    db.run('DROP TABLE IF EXISTS airports;');
     db.run(`
       CREATE TABLE airports (
         id INTEGER,
@@ -83,19 +60,10 @@ function convertAicraftCSVToSQL() {
   });
 }
 
-function cleanup() {
-  fs.rmSync(AIRPORTS_CSV_FILE);
+export function verifyAirportsDB(): boolean {
+  return fs.existsSync(AIRPORTS_SQL_FILE) && (fs.lstatSync(AIRPORTS_SQL_FILE).size > 0);
 }
 
-export async function initAirportsDB() {
-  console.log('Downloading airports.csv');
-  await downloadAirportsCSV();
-  console.log('Creating database');
-  convertAicraftCSVToSQL();
-  console.log('Cleaning Up');
-  cleanup();
-}
-
-export function loadAirportsDB() {
+export function loadAirportsDB(): Database {
   return new sqlite3.Database(AIRPORTS_SQL_FILE);
 }

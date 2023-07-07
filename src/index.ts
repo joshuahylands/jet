@@ -3,16 +3,11 @@ import express from 'express';
 
 import createAircraftRouter from './api/aircraft';
 import createAirportsRouter from './api/airports';
-import { initAirportsDB } from './data/airports';
-import { loadBaseStationSQB } from './data/baseStation';
+import initData from './data/mod';
 import docsRouter from './docs/docsRouter';
 
 async function main() {
-  // Check for the --nofetch argument. If not present download data
-  if (!process.argv.includes('--nofetch')) {
-    await loadBaseStationSQB();
-    await initAirportsDB();
-  }
+  await initData();
 
   // Set up the express app and routes
   const app = express();
