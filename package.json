@@ -2,7 +2,8 @@
   "name": "jet",
   "main": "./src/index.ts",
   "scripts": {
-    "start": "ts-node ."
+    "start": "ts-node .",
+    "start-nofetch": "ts-node . --nofetch"
   },
   "author": "Joshua Hylands",
   "devDependencies": {

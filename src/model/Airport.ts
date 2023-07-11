@@ -1,6 +1,8 @@
+export type AirportType = 'closed' | 'heliport' | 'small_airport' | 'medium_airport' | 'large_airport';
+
 type Airport = {
   icao: string;
-  type: string;
+  type: AirportType;
   name: string;
   lat: number;
   lon: number;

@@ -38,7 +38,7 @@ function createAircraftRouter() {
       FROM
         Aircraft
       WHERE
-        ModeS='${icao24}'
+        ModeS='${icao24.toUpperCase()}'
     `;
   
     db.get(query, (err, row: ResponseData) => {

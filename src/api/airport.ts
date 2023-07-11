@@ -5,7 +5,8 @@ import Airport from '../model/Airport';
 import Response from '../model/Response';
 
 type QueryData = {
-  icao: string;
+  icao?: string;
+  iata?: string;
 };
 
 function createAirportRouter() {
@@ -13,13 +14,14 @@ function createAirportRouter() {
   const db = loadAirportsDB();
 
   router.get<object, Response<Airport>, object, QueryData>('/', (req, res) => {
-    const { icao } = req.query;
+    const { icao, iata } = req.query;
 
     const query = `
       SELECT *
       FROM airports
       WHERE
-        icao='${icao}'
+        icao='${icao}' OR
+        iata_code='${iata}'
     `;
 
     db.get(query, (err, row: Airport) => {
@@ -38,7 +40,7 @@ function createAirportRouter() {
           });
       }
 
-      // Send all the rows found
+      // Send the airport found
       res.send({
         success: true,
         data: row

@@ -8,6 +8,9 @@ The base endpoint for this API is `/api/v1`
 
 Responds with data about an aircraft when given it's ICAO 24-bit Address
 
+#### Parameters
+- `icao24` - The [ICAO 24-bit Address](https://en.wikipedia.org/wiki/Aviation_transponder_interrogation_modes#ICAO_24-bit_address) assigned to the aircraft (required)
+
 #### Example:
 GET `/api/v1/aircraft?icao24=4063E7`
 ```json
@@ -26,9 +29,13 @@ GET `/api/v1/aircraft?icao24=4063E7`
 }
 ```
 
-### GET `/airport?icao=<ICAO>`
+### GET `/airport`
 
-Returns the data about the airport with the ICAO Code provided
+Returns data about the airport with either the ICAO code or IATA code provided
+
+### Parameters
+- `icao` - [ICAO Airport Code](https://en.wikipedia.org/wiki/ICAO_airport_code)
+- `iata` - [IATA Airport Code](https://en.wikipedia.org/wiki/IATA_airport_code)
 
 #### Example
 GET `/api/v1/airport?icao=EGKK`
@@ -60,7 +67,14 @@ GET `/api/v1/airport?icao=EGKK`
 
 ### GET `/airports?lat_min=<LAT_MIN>&lat_max=<LAT_MAX>&lon_min=<LON_MIN>&lon_max=<LON_MAX>`
 
-Returns all airports within the specified latitude and longitude bounds
+Returns all airports within the specified latitude and longitude bounds. An additional parameter `type` will only return airports that are of the types specified
+
+#### Parameters
+- `lat_min`: number (required)
+- `lat_max`: number (required)
+- `lon_min`: number (required)
+- `lon_max`: number (required)
+- `type`: comma-separated string with possible values: `closed`, `heliport`, `small_airport`, `medium_airport`, `large_airport`
 
 #### Example:
 GET `/api/v1/airports?lat_min=51.1&lat_max=51.25&lon_min=-0.2&lon_max=-0.1`
@@ -123,6 +137,10 @@ Arguments
 ```sh
 npm run start
 ```
+or
+```sh
+npm run start-nofetch # Equivalent to npm run start -- --nofetch
+```
 
 ## Data
 
@@ -133,4 +151,4 @@ This API relies on data from:
 - https://ourairports.com/data/
   - airports.csv
 
-These files are downloaded automatically when the program is executed
+These files are downloaded automatically when the program is executed and converted into the required formats

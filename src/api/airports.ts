@@ -9,6 +9,7 @@ type QueryData = {
   lat_max: number;
   lon_min: number;
   lon_max: number;
+  type?: string;
 };
 
 function createAirportsRouter() {
@@ -16,9 +17,9 @@ function createAirportsRouter() {
   const db = loadAirportsDB();
 
   router.get<object, Response<Airport[]>, object, QueryData>('/', (req, res) => {
-    const { lat_min, lat_max, lon_min, lon_max } = req.query;
+    const { lat_min, lat_max, lon_min, lon_max, type } = req.query;
 
-    const query = `
+    let query = `
       SELECT *
       FROM airports
       WHERE
@@ -27,6 +28,14 @@ function createAirportsRouter() {
         lon >= ${lon_min} AND
         lon <= ${lon_max}
     `;
+
+    if (type) {
+      const types = type.split(',');
+      const typeQuery = types
+        .map(t => `type='${t}'`)
+        .join(' OR ');
+      query += ` AND (${typeQuery})`;
+    }
 
     db.all(query, (err, rows: Airport[]) => {
       // Handle any error with the database
