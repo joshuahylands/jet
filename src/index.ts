@@ -2,10 +2,11 @@ import 'dotenv/config';
 import express from 'express';
 
 import createAircraftRouter from './api/aircraft';
+import createAirlineRouter from './api/airline';
+import createAirportRouter from './api/airport';
 import createAirportsRouter from './api/airports';
 import initData from './data/mod';
 import docsRouter from './docs/docsRouter';
-import createAirportRouter from './api/airport';
 
 async function main() {
   await initData();
@@ -17,6 +18,7 @@ async function main() {
   app.use('/api/v1/aircraft', createAircraftRouter());
   app.use('/api/v1/airport', createAirportRouter());
   app.use('/api/v1/airports', createAirportsRouter());
+  app.use('/api/v1/airline', createAirlineRouter());
 
   // Start listening
   const PORT = Number(process.env.PORT) || 8000;

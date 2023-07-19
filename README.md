@@ -29,11 +29,37 @@ GET `/api/v1/aircraft?icao24=4063E7`
 }
 ```
 
+### GET `/airline`
+
+Returns data about the airline with either the ICAO code or IATA code provided
+
+#### Parameters
+- `icao` - Airline ICAO Code
+- `iata` - Airline IATA Code
+
+#### Example
+GET `/api/v1/airline?icao=BAW`
+
+```json
+{
+  "success": true,
+  "data": {
+    "name": "British Airways",
+    "alias": null,
+    "iata": "BA",
+    "icao": "BAW",
+    "callsign": "SPEEDBIRD",
+    "country": "United Kingdom",
+    "active": true
+  }
+}
+```
+
 ### GET `/airport`
 
 Returns data about the airport with either the ICAO code or IATA code provided
 
-### Parameters
+#### Parameters
 - `icao` - [ICAO Airport Code](https://en.wikipedia.org/wiki/ICAO_airport_code)
 - `iata` - [IATA Airport Code](https://en.wikipedia.org/wiki/IATA_airport_code)
 
