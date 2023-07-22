@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { initBaseStationSQB, verifyBaseStationSQB } from './baseStation';
+import { initAircraftDB, verifyAircraftDB } from './aircraft';
 import { initAirportsDB, verifyAirportsDB } from './airports';
 import { initAirlinesDB, verifyAirlinesDB } from './airlines';
+import { initBaseStationSQB, verifyBaseStationSQB } from './baseStation';
 
 export const DATA_DIRECTORY = path.join(process.cwd(), 'data');
 
@@ -17,9 +18,10 @@ function initDataDirectory() {
 // Check Data exists. If not then exit
 function verifyData() {
   if (!(
-    verifyBaseStationSQB() &&
+    verifyAircraftDB() &&
     verifyAirportsDB() &&
-    verifyAirlinesDB()
+    verifyAirlinesDB() &&
+    verifyBaseStationSQB()
   )) {
     console.error('Data not verified!');
     process.exit(1);
@@ -35,6 +37,7 @@ async function initData() {
     await initBaseStationSQB();
     await initAirportsDB();
     await initAirlinesDB();
+    initAircraftDB();
   }
 
   // Verify the data

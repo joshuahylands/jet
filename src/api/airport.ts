@@ -12,39 +12,24 @@ type QueryData = {
 function createAirportRouter() {
   const router = Router();
   const db = loadAirportsDB();
+  const select = db.prepare('SELECT * FROM airports WHERE icao=? OR iata_code=?;');
 
   router.get<object, Response<Airport>, object, QueryData>('/', (req, res) => {
     const { icao, iata } = req.query;
 
-    const query = `
-      SELECT *
-      FROM airports
-      WHERE
-        icao='${icao}' OR
-        iata_code='${iata}'
-    `;
+    const airport = select.get(icao, iata) as Airport | undefined;
 
-    db.get(query, (err, row: Airport) => {
-      // Handle any error with the database
-      if (err) {
-        return res
-          .status(500)
-          .send({
-            success: false
-          });
-      } else if (row == undefined) {
-        return res
-          .status(404)
-          .send({
-            success: false
-          });
-      }
+    if (!airport) {
+      return res
+        .status(404)
+        .send({
+          success: false
+        });
+    }
 
-      // Send the airport found
-      res.send({
-        success: true,
-        data: row
-      });
+    res.send({
+      success: true,
+      data: airport
     });
   });
 

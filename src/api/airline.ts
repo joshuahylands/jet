@@ -20,40 +20,25 @@ type QueryData = {
 function createAirlineRouter() {
   const router = Router();
   const db = loadAirlinesDB();
+  const select = db.prepare('SELECT * FROM airlines WHERE icao=? OR iata=?;');
 
   router.get<object, Response<ResponseData>, object, QueryData>('/', (req, res) => {
-    const query = `
-      SELECT *
-      FROM airlines
-      WHERE
-        icao = '${req.query.icao}' OR
-        iata = '${req.query.iata}'
-    `;
+    const airline = select.get(req.query.icao, req.query.iata) as ResponseData | undefined;
 
-    db.get(query, (err, row: ResponseData) => {
-      // Handle errors and no matching rows
-      if (err) {
-        return res
-          .status(500)
-          .send({
-            success: false
-          });
-      } else if (row == undefined) {
-        return res
-          .status(404)
-          .send({
-            success: false
-          });
-      }
+    if (!airline) {
+      return res
+        .status(404)
+        .send({
+          success: false
+        });
+    }
 
-      // SQLite doesn't support booleans instead using 1 or 0. So we convert that 1 or 0 into a boolean
-      row.active = Boolean(row.active);
+    // SQLite doesn't support booleans instead using 1 or 0. So we convert that 1 or 0 into a boolean
+    airline.active = Boolean(airline.active);
 
-      // Send the row found
-      res.send({
-        success: true,
-        data: row
-      });
+    res.send({
+      success: true,
+      data: airline
     });
   });
 

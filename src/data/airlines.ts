@@ -1,12 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { Database, verbose } from 'sqlite3';
+import Database from 'better-sqlite3';
 import { downloadFile } from '../util';
 
 const AIRLINES_DAT_URL = 'https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat';
 const AIRLINES_DB = path.join(process.cwd(), 'data', 'airlines.db');
-
-const sqlite3 = verbose();
 
 export async function initAirlinesDB() {
   const buffer = await downloadFile(AIRLINES_DAT_URL);
@@ -15,46 +13,48 @@ export async function initAirlinesDB() {
   const airlines_dat_lines = airlines_dat.split('\n');
 
   const db = loadAirlinesDB();
-  db.serialize(() => {
-    db.run('DROP TABLE IF EXISTS airlines;');
-    db.run(`
-      CREATE TABLE airlines (
-        name TEXT,
-        alias TEXT,
-        iata TEXT,
-        icao TEXT,
-        callsign TEXT,
-        country TEXT,
-        active INTEGER
-      );
-    `);
 
-    db.run('BEGIN TRANSACTION;');
+  db.prepare('DROP TABLE IF EXISTS airlines;').run();
+  db.prepare(`
+    CREATE TABLE airlines (
+      name TEXT,
+      alias TEXT,
+      iata TEXT,
+      icao TEXT,
+      callsign TEXT,
+      country TEXT,
+      active INTEGER
+    );
+  `).run();
+
+  const insert = db.prepare('INSERT INTO airlines VALUES (?, ?, ?, ?, ?, ?, ?);');
+
+  db.transaction(() => {
     for (let i = 0; i < airlines_dat_lines.length; i++) {
       const data = airlines_dat_lines[i]
-        .split(',')
-        .slice(1) // Get rid of the ID column
-        .join(',')
         .replaceAll('\\N', 'NULL') // Replace the csv files null value '\N' with a SQLite NULL
         .replace('"N"', '0') // SQLite doesn't support booleans so convert the 'N', 'Y' to 0 or 1
-        .replace('"Y"', '1');
+        .replace('"Y"', '1')
+        .replaceAll('"', '')
+        .split(',')
+        .slice(1); // Get rid of the ID column
 
-      db.run(`INSERT INTO airlines VALUES (${data});`, (_: unknown, err: unknown) => {
-        if (err) {
-          console.log(data);
-        }
-      });
+      // Some entries contain a ',' in a column so get split into more columns than required
+      if (data.length == 7) {
+        insert.run(...data);
+      }
     }
-    db.run('COMMIT;');
+  })();
 
-    db.close();
-  });
+  db.close();
 }
 
 export function verifyAirlinesDB(): boolean {
   return fs.existsSync(AIRLINES_DB) && fs.lstatSync(AIRLINES_DB).size > 0;
 }
 
-export function loadAirlinesDB(): Database {
-  return new sqlite3.Database(AIRLINES_DB);
+export function loadAirlinesDB() {
+  const db = new Database(AIRLINES_DB);
+  db.pragma('journal_mode = WAL');
+  return db;
 }

@@ -1,16 +1,16 @@
 import { Router } from 'express';
 
-import Response from '../model/Response';
+import { loadAircraftDB } from '../data/aircraft';
 import { loadBaseStationSQBDatabase } from '../data/baseStation';
+import AircraftType from '../model/AircraftType';
+import Response from '../model/Response';
 
 type ResponseData = {
   icao24: string;
   country: string;
   country_code: string;
   registration: string;
-  manufacturer: string;
-  type_code: string;
-  type: string;
+  type: AircraftType | string;
   owner: string;
 };
 
@@ -20,48 +20,47 @@ type QueryData = {
 
 function createAircraftRouter() {
   const router = Router();
-  const db = loadBaseStationSQBDatabase();
+  const baseStationDB = loadBaseStationSQBDatabase();
+  const aircraftTypeDB = loadAircraftDB();
+
+  const aircraftSelect = baseStationDB.prepare(`
+    SELECT
+      ModeS AS icao24,
+      ModeSCountry AS country,
+      Country AS country_code,
+      Registration AS registration,
+      ICAOTypeCode AS type,
+      RegisteredOwners AS owners
+    FROM
+      Aircraft
+    WHERE
+      ModeS=?;
+  `);
+  const typeSelect = aircraftTypeDB.prepare('SELECT * FROM aircraft WHERE icao=?;');
 
   router.get<object, Response<ResponseData>, object, QueryData>('/', (req, res) => {
     const { icao24 } = req.query;
   
-    const query = `
-      SELECT
-        ModeS AS icao24,
-        ModeSCountry AS country,
-        Country AS country_code,
-        Registration AS registration,
-        Manufacturer AS manufaturer,
-        ICAOTypeCode AS type_code,
-        Type AS type,
-        RegisteredOwners AS owners
-      FROM
-        Aircraft
-      WHERE
-        ModeS='${icao24.toUpperCase()}'
-    `;
+    const aircraft = aircraftSelect.get(icao24.toUpperCase()) as ResponseData | undefined;
+
+    if (!aircraft) {
+      return res
+        .status(404)
+        .send({
+          success: false
+        });
+    }
   
-    db.get(query, (err, row: ResponseData) => {
-      // Handle errors and if the aircraft isn't in the database
-      if (err) {
-        return res
-          .status(500)
-          .send({
-            success: false
-          });
-      } else if (row == undefined) {
-        return res
-          .status(404)
-          .send({
-            success: false
-          });
-      }
-  
-      // Send a successful response
-      res.send({
-        success: true,
-        data: row
-      });
+    const aircraftType = typeSelect.get(aircraft.type) as AircraftType | undefined;
+
+    if (aircraftType) {
+      aircraft.type = aircraftType;
+    }
+
+    // Send a successful response
+    res.send({
+      success: true,
+      data: aircraft
     });
   });
 

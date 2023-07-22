@@ -21,9 +21,11 @@ GET `/api/v1/aircraft?icao24=4063E7`
     "country": "United Kingdom",
     "country_code": "G",
     "registration": "G-VKSS",
-    "manufaturer": "AIRBUS",
-    "type_code": "A333",
-    "type": "A-330-300",
+    "type": {
+      "icao": "A333",
+      "manufacturer": "Airbus",
+      "name": "A330-300"
+    },
     "owners": "Virgin Atlantic Airways"
   }
 }
@@ -85,8 +87,7 @@ GET `/api/v1/airport?icao=EGKK`
     "iata_code": "LGW",
     "local_code": null,
     "home_link": "http://www.gatwickairport.com/",
-    "wikipedia_link": "https://en.wikipedia.org/wiki/Gatwick_Airport",
-    "keywords": "LON, Crawley, Charlwood"
+    "wikipedia_link": "https://en.wikipedia.org/wiki/Gatwick_Airport"
   }
 }
 ```
@@ -125,8 +126,7 @@ GET `/api/v1/airports?lat_min=51.1&lat_max=51.25&lon_min=-0.2&lon_max=-0.1`
       "iata_code": "LGW",
       "local_code": null,
       "home_link": "http://www.gatwickairport.com/",
-      "wikipedia_link": "https://en.wikipedia.org/wiki/Gatwick_Airport",
-      "keywords": "LON, Crawley, Charlwood"
+      "wikipedia_link": "https://en.wikipedia.org/wiki/Gatwick_Airport"
     },
     {
       "icao": "EGKR",
@@ -144,10 +144,30 @@ GET `/api/v1/airports?lat_min=51.1&lat_max=51.25&lon_min=-0.2&lon_max=-0.1`
       "iata_code": null,
       "local_code": null,
       "home_link": "http://www.redhillaerodrome.com/",
-      "wikipedia_link": "https://en.wikipedia.org/wiki/Redhill_Aerodrome",
-      "keywords": "RAF Redhill"
+      "wikipedia_link": "https://en.wikipedia.org/wiki/Redhill_Aerodrome"
     }
   ]
+}
+```
+
+### GET `/type`
+
+Returns details about an aircraft type
+
+#### Parameters
+- `icao` - [ICAO Aircraft Type Designator](https://en.wikipedia.org/wiki/List_of_aircraft_type_designators)
+
+#### Example
+GET `/api/v1/type?icao=B788`
+
+```json
+{
+  "success": true,
+  "data": {
+    "icao": "B788",
+    "manufacturer": "Boeing",
+    "name": "787-8 Dreamliner"
+  }
 }
 ```
 
@@ -176,5 +196,12 @@ This API relies on data from:
   - BaseStation.sqb.gz
 - https://ourairports.com/data/
   - airports.csv
+- https://openflights.org/data.html
+  - airlines.data
+- https://aircraft-database.com/ - This data must be put in the `data` folder manually as it requires a login to download. See license below
+  - manufacturers.json
+  - aircraft-types.json
 
-These files are downloaded automatically when the program is executed and converted into the required formats
+All files, except those from https://aircraft-database.com/, are downloaded automatically when the program is executed and converted into the required formats
+
+Contains information from [Aircraft Database](https://aircraft-database.com/) which is made available under the [ODC Attribution License](https://opendatacommons.org/licenses/by/1-0/).

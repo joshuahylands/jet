@@ -37,21 +37,11 @@ function createAirportsRouter() {
       query += ` AND (${typeQuery})`;
     }
 
-    db.all(query, (err, rows: Airport[]) => {
-      // Handle any error with the database
-      if (err) {
-        return res
-          .status(500)
-          .send({
-            success: false
-          });
-      }
+    const airports = db.prepare(query).all() as Airport[];
 
-      // Send all the rows found
-      res.send({
-        success: true,
-        data: rows
-      });
+    res.send({
+      success: true,
+      data: airports
     });
   });
 

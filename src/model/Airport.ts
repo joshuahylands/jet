@@ -17,7 +17,6 @@ type Airport = {
   local_code: string;
   home_link: string;
   wikipedia_link: string;
-  keywords: string;
 };
 
 export default Airport;
